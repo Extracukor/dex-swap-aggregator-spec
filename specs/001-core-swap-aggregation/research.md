@@ -100,20 +100,34 @@ transferred per-tx to save gas.
 
 ## Routing Engine: Technology
 
-**Decision**: Node.js 22 LTS + TypeScript 5, HTTP REST API served by Fastify.
-Single-process; no message queue needed for v1.
+**Decision**: Python 3.12 + FastAPI, served by uvicorn (single worker, single process).
+Blockchain interaction via web3.py 7+. Data validation via Pydantic v2 (built into FastAPI).
 
-**Rationale**: Matches constitution constraints. Fastify is fast (~70k req/s), low
-overhead, JSON schema validation built-in. Single process is sufficient for solo ops;
-horizontal scalability can be added later behind a load balancer.
+**Rationale**: Python is already installed on the development machine. FastAPI delivers
+comparable throughput to Fastify for I/O-bound workloads (quoting is network-bound, not
+CPU-bound). Pydantic v2 provides automatic request/response validation matching the API
+contract. web3.py 7+ supports async calls natively, enabling concurrent DEX quote fetching
+with `asyncio.gather`. Single process is sufficient for solo ops; scale behind a load
+balancer with multiple uvicorn workers if needed.
 
 **RPC Strategy**: Primary — Alchemy (Base). Fallback — Ankr public endpoint.
-Use `viem` with a fallback transport (`fallback([http(alchemy), http(ankr)])`) to
-satisfy the constitution's "no single third-party RPC" constraint.
+Configure web3.py with a custom middleware that retries against the fallback URL on
+connection error, satisfying the constitution's "no single third-party RPC" constraint.
+
+**Key dependencies**:
+
+- `fastapi>=0.115` — async REST framework
+- `uvicorn[standard]>=0.30` — ASGI server
+- `web3>=7.0` — Ethereum/Base RPC interaction, ABI encoding
+- `pydantic>=2.7` — data validation (bundled with FastAPI)
+- `httpx>=0.27` — async HTTP client (for any off-chain price feeds)
+- `pytest>=8`, `pytest-asyncio`, `httpx` — testing
 
 **Alternatives Considered**:
 
-- Express: Slower than Fastify; no built-in schema validation.
+- Node.js + TypeScript (original plan): Valid choice, but Python is already available
+  on the machine. Switching removes one runtime to manage.
+- Django / Flask: Synchronous by default; worse fit for concurrent async DEX calls.
 - GraphQL: Over-engineered for a simple quote/execute API.
 - Dedicated quote cache (Redis): Premature for v1; quotes are cheap to re-fetch.
 

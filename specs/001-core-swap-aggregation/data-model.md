@@ -55,89 +55,92 @@ event Unpaused(address by);
 
 ---
 
-## Off-Chain: Routing Engine Types (TypeScript)
+## Off-Chain: Routing Engine Models (Python / Pydantic v2)
+
+All models live in `engine/app/models.py`.
+`int` fields representing on-chain `uint256` amounts use Python's native arbitrary-precision `int`.
 
 ### `Token`
 
-```typescript
-interface Token {
-  address: `0x${string}`;   // checksummed EVM address, or sentinel for ETH
-  symbol: string;
-  decimals: number;
-  chainId: number;
-  isNative: boolean;        // true for ETH (uses sentinel address)
-}
+```python
+from pydantic import BaseModel
+
+class Token(BaseModel):
+    address: str        # checksummed EVM address, or ETH sentinel "0xEeee...eEEE"
+    symbol: str
+    decimals: int
+    chain_id: int
+    is_native: bool     # True for ETH (sentinel address)
 ```
 
 ### `SwapRoute`
 
-```typescript
-interface SwapRoute {
-  dexId: 'uniswap_v3' | 'aerodrome';
-  path: `0x${string}`[];    // ordered token addresses including intermediates
-  fees: number[];           // Uniswap fee tiers per hop (bps*100); empty for Aerodrome
-  poolTypes: ('volatile' | 'stable' | null)[];  // Aerodrome pool type per hop; null for Uniswap
-  amountOut: bigint;        // raw output from DEX (before protocol fee), in tokenOut decimals
-  priceImpactBps: number;   // price impact in basis points (e.g. 50 = 0.5%)
-  gasEstimate: bigint;      // estimated gas units
-}
+```python
+from typing import Literal
+
+class SwapRoute(BaseModel):
+    dex_id: Literal["uniswap_v3", "aerodrome"]
+    path: list[str]             # ordered checksummed token addresses incl. intermediates
+    fees: list[int]             # Uniswap fee tiers per hop (e.g. 500); empty for Aerodrome
+    pool_types: list[Literal["volatile", "stable"] | None]
+                                # Aerodrome pool type per hop; None for Uniswap hops
+    amount_out: int             # raw DEX output (before protocol fee), in tokenOut decimals
+    price_impact_bps: int       # price impact in basis points (e.g. 50 = 0.5%)
+    gas_estimate: int           # estimated gas units
 ```
 
 ### `SwapQuote`
 
-```typescript
-interface SwapQuote {
-  tokenIn: Token;
-  tokenOut: Token;
-  amountIn: bigint;           // in tokenIn decimals
-  bestRoute: SwapRoute;       // highest amountOut after protocolFee
-  allRoutes: SwapRoute[];     // all routes, sorted descending by amountOut
-  protocolFeeBps: number;     // fee rate at quote time (e.g. 5 = 0.05%)
-  protocolFeeAmount: bigint;  // in tokenOut decimals
-  bestAmountOutNet: bigint;   // bestRoute.amountOut - protocolFeeAmount
-  estimatedGasUSD: number;    // float, informational
-  highPriceImpact: boolean;   // true if bestRoute.priceImpactBps > 500
-  quoteTimestamp: number;     // Unix epoch ms
-  validForSeconds: 30;        // hardcoded per research decision
-}
+```python
+class SwapQuote(BaseModel):
+    token_in: Token
+    token_out: Token
+    amount_in: int              # in tokenIn decimals
+    best_route: SwapRoute       # route with highest amount_out after protocol fee
+    all_routes: list[SwapRoute] # sorted descending by amount_out
+    protocol_fee_bps: int       # fee rate at quote time (e.g. 5 = 0.05%)
+    protocol_fee_amount: int    # in tokenOut decimals
+    best_amount_out_net: int    # best_route.amount_out - protocol_fee_amount
+    estimated_gas_usd: float    # informational display only
+    high_price_impact: bool     # True if best_route.price_impact_bps > 500
+    quote_timestamp: int        # Unix epoch milliseconds
+    valid_for_seconds: int = 30
 ```
 
-### `SwapRequest` (frontend → routing engine)
+### `SwapRequest` (query params, frontend → routing engine)
 
-```typescript
-interface SwapRequest {
-  tokenIn: `0x${string}`;    // token address or ETH sentinel
-  tokenOut: `0x${string}`;
-  amountIn: string;          // decimal string (e.g. "100000000" for 100 USDC)
-  slippageBps: number;       // user's slippage tolerance (10–500)
-  chainId: 8453;             // Base mainnet only for v1
-}
+```python
+from pydantic import Field
+
+class SwapRequest(BaseModel):
+    token_in: str               # EVM address or ETH sentinel
+    token_out: str
+    amount_in: str              # decimal integer string (e.g. "100000000" for 100 USDC)
+    slippage_bps: int = Field(default=50, ge=10, le=500)
+    chain_id: int = 8453        # Base mainnet only for v1
 ```
 
 ### `SwapExecution` (off-chain record, written after tx confirmation)
 
-```typescript
-interface SwapExecution {
-  txHash: `0x${string}`;
-  blockNumber: bigint;
-  chainId: number;
-  userAddress: `0x${string}`;
-  tokenIn: `0x${string}`;
-  tokenOut: `0x${string}`;
-  amountIn: bigint;
-  amountOut: bigint;         // gross
-  feeCollected: bigint;
-  amountOutNet: bigint;
-  dexId: string;
-  routePath: `0x${string}`[];
-  status: 'success' | 'reverted';
-  timestamp: number;         // Unix epoch ms of block
-}
+```python
+from typing import Literal
+
+class SwapExecution(BaseModel):
+    tx_hash: str
+    block_number: int
+    chain_id: int
+    user_address: str
+    token_in: str
+    token_out: str
+    amount_in: int
+    amount_out: int             # gross output
+    fee_collected: int
+    amount_out_net: int
+    dex_id: str
+    route_path: list[str]
+    status: Literal["success", "reverted"]
+    timestamp: int              # Unix epoch ms of block
 ```
-
----
-
-## Relationships
 
 ```text
 SwapRequest (user input)
@@ -159,26 +162,32 @@ SwapExecution (off-chain record, indexed from event log)
 
 ## Allowlist Config (routing engine)
 
-```typescript
-// Stored in chain-specific config file, not hardcoded in contract
-interface TokenConfig {
-  [chainId: number]: Token[];
-}
+Stored in `engine/app/config/chains.py` and `engine/app/config/tokens.py`.
 
-interface ChainConfig {
-  chainId: number;
-  rpcUrls: string[];          // primary + fallback
-  aggregatorAddress: `0x${string}`;
-  uniswapV3: {
-    quoterV2: `0x${string}`;
-    swapRouter02: `0x${string}`;
-    feeTiers: number[];       // [100, 500, 3000, 10000]
-  };
-  aerodrome: {
-    router: `0x${string}`;
-    factory: `0x${string}`;
-  };
-  weth: `0x${string}`;
-  ethUsdPriceFeed: `0x${string}`;  // Chainlink
-}
+```python
+from dataclasses import dataclass, field
+
+@dataclass
+class UniswapV3Config:
+    quoter_v2: str
+    swap_router_02: str
+    fee_tiers: list[int] = field(default_factory=lambda: [100, 500, 3000, 10000])
+
+@dataclass
+class AerodromeConfig:
+    router: str
+    factory: str
+
+@dataclass
+class ChainConfig:
+    chain_id: int
+    rpc_urls: list[str]             # index 0 = primary, index 1+ = fallbacks
+    aggregator_address: str
+    uniswap_v3: UniswapV3Config
+    aerodrome: AerodromeConfig
+    weth: str
+    eth_usd_price_feed: str         # Chainlink ETH/USD on Base
+
+# Token allowlist: list[Token] per chain_id
+# Defined in engine/app/config/tokens.py
 ```

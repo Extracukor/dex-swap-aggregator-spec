@@ -21,11 +21,11 @@ users to quote and execute swaps.
 | ----- | ----- |
 | **Smart Contracts** | Solidity ^0.8.24, Foundry (forge, cast, anvil) |
 | **Contract Libraries** | OpenZeppelin 5.x (Ownable, Pausable, ReentrancyGuard, SafeERC20) |
-| **Routing Engine** | TypeScript 5+, Node.js 22 LTS, Fastify |
-| **Blockchain Client** | viem v2 (fallback transport: Alchemy → Ankr) |
+| **Routing Engine** | Python 3.12+, FastAPI, uvicorn |
+| **Blockchain Client** | web3.py 7+ (fallback transport: Alchemy → Ankr public RPC) |
 | **Frontend** | React 19, Vite, TypeScript, wagmi v2, viem v2, shadcn/ui |
 | **Testing (contracts)** | Forge fork tests against Base mainnet fork |
-| **Testing (engine)** | Vitest + viem test utilities |
+| **Testing (engine)** | pytest + pytest-asyncio + httpx (async test client) |
 | **Target Chain** | Base mainnet (chainId: 8453); Base Sepolia for testing (84532) |
 | **DEX Sources** | Uniswap v3 (`QuoterV2` + `SwapRouter02`), Aerodrome (`Router`) |
 | **Protocol Fee** | 5 bps (0.05%) of output, swept to treasury |
@@ -88,22 +88,27 @@ contracts/                          ← Foundry project root
 │   └── Deploy.s.sol                ← deployment script (Base Sepolia + mainnet)
 └── foundry.toml
 
-engine/                             ← Routing engine
-├── src/
-│   ├── server.ts                   ← Fastify app entry point
+engine/                             ← Routing engine (Python)
+├── app/
+│   ├── main.py                     ← FastAPI app entry point
 │   ├── routes/
-│   │   ├── quote.ts                ← GET /v1/quote handler
-│   │   ├── tokens.ts               ← GET /v1/tokens handler
-│   │   └── health.ts               ← GET /v1/health handler
+│   │   ├── quote.py                ← GET /v1/quote handler
+│   │   ├── tokens.py               ← GET /v1/tokens handler
+│   │   └── health.py               ← GET /v1/health handler
 │   ├── quoters/
-│   │   ├── uniswapV3.ts            ← QuoterV2 integration
-│   │   └── aerodrome.ts            ← Aerodrome getAmountsOut integration
-│   ├── aggregator.ts               ← fetches all quotes, selects best route
+│   │   ├── uniswap_v3.py           ← QuoterV2 integration via web3.py
+│   │   └── aerodrome.py            ← Aerodrome getAmountsOut integration
+│   ├── aggregator.py               ← fetches all quotes, selects best route
 │   ├── config/
-│   │   ├── chains.ts               ← ChainConfig per chainId
-│   │   └── tokens.ts               ← TokenConfig allowlist
-│   └── types.ts                    ← shared TypeScript types (from data-model.md)
-└── package.json
+│   │   ├── chains.py               ← ChainConfig per chainId
+│   │   └── tokens.py               ← TokenConfig allowlist
+│   └── models.py                   ← Pydantic models (from data-model.md)
+├── tests/
+│   ├── test_quote.py
+│   ├── test_aggregator.py
+│   └── test_health.py
+├── pyproject.toml
+└── requirements.txt
 
 frontend/                           ← React app
 ├── src/
@@ -134,7 +139,7 @@ All technology decisions resolved:
 - Uniswap v3 `QuoterV2` + `SwapRouter02` for quotes and execution
 - Aerodrome `Router` for quotes and execution
 - Single `AggregatorRouter` contract, no proxy, OpenZeppelin 5.x
-- Fastify + Node.js 22 for routing engine
+- FastAPI + Python 3.12 for routing engine (web3.py for on-chain calls)
 - React 19 + wagmi v2 for frontend
 - 30-second quote validity window
 - Token allowlist (7 tokens, v1)

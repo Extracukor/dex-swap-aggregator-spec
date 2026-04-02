@@ -1,6 +1,6 @@
 # DEX Swap Aggregator Constitution
 
-**Version**: 1.0.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
+**Version**: 1.1.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
 
 ## Business Goal
 
@@ -66,8 +66,8 @@ Every swap that fails, slips, or routes incorrectly is lost revenue and lost use
 ## Constraints & Standards
 
 - **EVM chains**: Solidity ^0.8.24, Foundry for contract development and testing.
-- **Backend / Routing Engine**: TypeScript 5+, Node.js 22 LTS.
-- **Frontend**: React 19 + Vite; wallet connection via wagmi v2 + viem v2.
+- **Backend / Routing Engine**: Python 3.12+, FastAPI; blockchain interaction via web3.py 7+.
+- **Frontend**: React 19 + Vite; wallet connection via wagmi v2 + viem v2 (JS/TS — browser wallet integration requires JavaScript).
 - **No GPL dependencies** — all dependencies must be MIT, Apache 2.0, or BSL compatible.
 - **No custodial patterns**: the aggregator contract MUST NOT hold user funds between transactions.
 - **Slippage protection**: every swap MUST enforce a minimum output amount on-chain.
