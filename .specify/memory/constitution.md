@@ -1,6 +1,6 @@
 # DEX Swap Aggregator Constitution
 
-**Version**: 1.1.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
+**Version**: 1.2.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
 
 ## Business Goal
 
@@ -71,8 +71,13 @@ Every swap that fails, slips, or routes incorrectly is lost revenue and lost use
 - **No GPL dependencies** — all dependencies must be MIT, Apache 2.0, or BSL compatible.
 - **No custodial patterns**: the aggregator contract MUST NOT hold user funds between transactions.
 - **Slippage protection**: every swap MUST enforce a minimum output amount on-chain.
-- **Self-hosted infrastructure**: routing engine runs on a VPS/cloud instance controlled by the owner;
-  no critical dependency on a single third-party RPC (use fallback providers).
+- **Hosting — Routing Engine**: Railway (managed PaaS); git push deploys automatically;
+  always-on (no sleep/spin-down); ~$5/month. No server provisioning or OS maintenance required.
+- **Hosting — Frontend**: Cloudflare Pages (free tier); git push deploys automatically;
+  global CDN; no infrastructure management required.
+- **Smart contracts**: deployed on-chain (Base); no hosting required after deployment.
+- **No single third-party RPC**: routing engine MUST configure a fallback RPC provider
+  (Alchemy primary, Ankr public fallback) to avoid a single point of failure.
 - **Secret management**: no secrets in source code or git history; use environment variables + vault.
 
 ## Development Workflow

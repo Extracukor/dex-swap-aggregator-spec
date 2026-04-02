@@ -30,7 +30,9 @@ users to quote and execute swaps.
 | **DEX Sources** | Uniswap v3 (`QuoterV2` + `SwapRouter02`), Aerodrome (`Router`) |
 | **Protocol Fee** | 5 bps (0.05%) of output, swept to treasury |
 | **Performance Goal** | Quote p95 < 2000ms |
-| **Scale** | Solo-operated; single VPS; ~$360k/day swap volume target |
+| **Routing Engine Hosting** | Railway (PaaS, git-connected, always-on, ~$5/mo) |
+| **Frontend Hosting** | Cloudflare Pages (free, git-connected, global CDN) |
+| **Scale** | Managed PaaS; no server ops required; ~$360k/day swap volume target |
 
 ---
 
