@@ -1,63 +1,93 @@
-# [PROJECT_NAME] Constitution
-<!-- Replace [PROJECT_NAME] with your project name, e.g. "DEX Swap Aggregator" -->
+# DEX Swap Aggregator Constitution
 
-**Version**: 0.1.0 | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [RATIFICATION_DATE]
+**Version**: 1.0.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
+
+## Business Goal
+
+Generate **€5,000+/month (~2,000,000 HUF) passive income** by charging a small
+protocol fee (≤0.1%) on swap volume routed through the aggregator.  
+Target: $360,000+/day in swap volume at 0.05% fee rate.  
+Solo developer — simplicity and maintainability are survival requirements.
 
 ## Core Principles
 
-### I. [PRINCIPLE_1_NAME]
-<!-- Example: "Simplicity First" -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: "Start with the simplest working solution. Add complexity only when
-proven necessary by real requirements. YAGNI: You Aren't Gonna Need It." -->
+### I. On-Chain Safety First (NON-NEGOTIABLE)
 
-### II. [PRINCIPLE_2_NAME]
-<!-- Example: "User-Centric Design" -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: "Every feature must serve a clear user need. Business value must be
-demonstrable before implementation begins." -->
+Smart contracts handle real user funds. Any vulnerability can cause total, irreversible
+loss of user assets and destroy the project.
 
-### III. [PRINCIPLE_3_NAME]
-<!-- Example: "Test-First (NON-NEGOTIABLE)" -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: "All implementation MUST follow TDD. Tests are written, reviewed, and
-confirmed to fail (Red) before any implementation code is written." -->
+- All smart contract code MUST be covered by fork-based integration tests before deployment.
+- All contracts MUST be audited (or at minimum peer-reviewed) before mainnet launch.
+- No upgradeable proxy patterns unless explicitly justified — prefer immutable contracts.
+- Emergency pause mechanisms MUST exist for all fund-handling contracts.
+- Private keys and admin roles MUST use a hardware wallet or multisig; never a hot wallet.
 
-### IV. [PRINCIPLE_4_NAME]
-<!-- Example: "API-First Contracts" -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: "All service interfaces must be defined as explicit contracts before
-implementation. Internal teams are treated as API consumers." -->
+### II. Revenue-Driven Simplicity (YAGNI)
 
-### V. [PRINCIPLE_5_NAME]
-<!-- Example: "Observability" -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: "All features must emit structured logs and metrics from day one.
-Debugging must be possible without attaching a debugger." -->
+Every feature must have a clear, measurable contribution to swap volume, user retention,
+or operational cost reduction. Features without business justification MUST NOT be built.
+
+- Start with the simplest working implementation; add complexity only when usage data proves the need.
+- Prefer existing audited protocols and libraries over custom implementations.
+- A feature is worth building only if it demonstrably increases swap volume or reduces churn.
+
+### III. L2-First, EVM-Compatible Expansion
+
+Start on a single high-volume EVM L2 (Base or Arbitrum One) to maximize user activity
+per gas dollar spent. Expand to additional chains only after the core product is proven.
+
+- Primary target: **Base** (high volume, low fees, Coinbase distribution, growing DeFi ecosystem).
+- Secondary: Arbitrum One, Optimism — share the same codebase via chain config.
+- Ethereum mainnet: supported in routing but not a launch priority.
+- Non-EVM chains (Solana, etc.): out of scope until $1M+/month revenue is sustained.
+- All chain-specific logic MUST be isolated behind a chain-config abstraction.
+
+### IV. API-First Routing Engine
+
+The quote/routing API is the core product and the primary integration surface.
+It MUST be defined as an explicit contract before implementation begins.
+
+- The routing engine API contract (request/response schema, error codes) MUST be finalized
+  before any implementation code is written.
+- Frontend and smart contracts are consumers of this API — they MUST not bypass it.
+- Breaking API changes require a version bump and a migration guide.
+- All API responses MUST include: best route, price impact, estimated gas, protocol fee breakdown.
+
+### V. Observability & Revenue Monitoring
+
+Silent failures in a revenue-generating system are unacceptable.
+Every swap that fails, slips, or routes incorrectly is lost revenue and lost user trust.
+
+- All swap events MUST be indexed on-chain and mirrored off-chain for revenue tracking.
+- The system MUST emit alerts if swap success rate drops below 95% in any 1-hour window.
+- Revenue dashboard (daily/monthly fee income by chain) MUST be operational from day one of mainnet.
+- All off-chain services MUST expose a `/health` endpoint and structured logs.
 
 ## Constraints & Standards
 
-<!-- Document your non-negotiable technical constraints, compliance requirements,
-and organizational standards here. Examples:
-- Cloud provider: [e.g., Azure only]
-- Supported languages/runtimes: [e.g., TypeScript 5+, Node.js 20 LTS]
-- Authentication: [e.g., OAuth 2.0 with Azure AD]
-- Data residency: [e.g., EU-only storage]
-- Licensing: [e.g., no GPL dependencies]
--->
-
-[CONSTRAINTS_CONTENT]
+- **EVM chains**: Solidity ^0.8.24, Foundry for contract development and testing.
+- **Backend / Routing Engine**: TypeScript 5+, Node.js 22 LTS.
+- **Frontend**: React 19 + Vite; wallet connection via wagmi v2 + viem v2.
+- **No GPL dependencies** — all dependencies must be MIT, Apache 2.0, or BSL compatible.
+- **No custodial patterns**: the aggregator contract MUST NOT hold user funds between transactions.
+- **Slippage protection**: every swap MUST enforce a minimum output amount on-chain.
+- **Self-hosted infrastructure**: routing engine runs on a VPS/cloud instance controlled by the owner;
+  no critical dependency on a single third-party RPC (use fallback providers).
+- **Secret management**: no secrets in source code or git history; use environment variables + vault.
 
 ## Development Workflow
 
-<!-- Document how the team works. Examples:
-- Branch strategy: [e.g., feature branches, trunk-based]
-- PR review: [e.g., 1 required approver]
-- Definition of Done: [checklist items]
-- Deployment cadence: [e.g., continuous delivery]
--->
-
-[WORKFLOW_CONTENT]
+- **Solo developer** — no PR review required, but every spec MUST be written before implementation.
+- **Branch strategy**: feature branches off `main` following `[###-feature-name]` naming.
+- **Definition of Done** for each feature:
+  - [ ] Spec accepted (spec.md complete, no open NEEDS CLARIFICATION)
+  - [ ] Plan accepted (plan.md complete, Constitution Check passed)
+  - [ ] All tasks completed (tasks.md all checked)
+  - [ ] Fork tests pass on target chain
+  - [ ] Revenue monitoring covers the new flow
+  - [ ] Deployed to testnet and manually validated via quickstart.md
+- **Mainnet deployment**: only after testnet validation + at least one independent code review.
+- **No speculative features**: only build what is in a completed, accepted spec.
 
 ## Governance
 
