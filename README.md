@@ -3,6 +3,34 @@
 Ez a repository a projekt **Spec-Driven Development (SDD)** specifikációit tárolja,
 a [github/spec-kit](https://github.com/github/spec-kit) módszertana alapján.
 
+**Implementációs repo**: https://github.com/Extracukor/dex-swap-aggregator
+
+---
+
+## Jelenlegi állapot — 2026-04-03
+
+### Constitution
+
+| Verzió | Ratified | Állapot |
+|--------|----------|---------|
+| v1.2.0 | 2026-04-02 | ✅ Elfogadva |
+
+### Feature-ök
+
+| # | Branch | Spec | Plan | Tasks | Implementáció |
+|---|--------|------|------|-------|---------------|
+| 001 | `001-core-swap-aggregation` | ✅ | ✅ | ✅ | ⏳ Nem kezdődött |
+| 002 | `002-automated-growth-engine` | ✅ | ❌ | ❌ | ❌ |
+
+### Mit kell még csinálni (sorrendben)
+
+1. `002-automated-growth-engine` → `/speckit.plan` → `/speckit.tasks`
+2. Implementáció: `001` Phase 1–4 (setup → contracts → engine → frontend)
+3. Base Sepolia testnet validáció (quickstart.md 6 scenario)
+4. Független kód review → mainnet deploy
+
+---
+
 ## A workflow
 
 ```text
@@ -66,6 +94,12 @@ specs/
 ```
 
 ## Első teendők
+
+> **Ha folytatod a munkát egy másik gépen:**
+> 1. `git clone https://github.com/Extracukor/dex-swap-aggregator-spec`
+> 2. Nyisd meg VS Code-ban
+> 3. Olvasd el a constitution-t és a legutóbbi feature `tasks.md`-jét
+> 4. Folytasd a Copilot Chatben a megfelelő prompttal
 
 1. **Töltsd ki a Constitution-t**: nyisd meg [`.specify/memory/constitution.md`](.specify/memory/constitution.md)
    és töltsd ki a placeholdereket a projekt elvekkel.
