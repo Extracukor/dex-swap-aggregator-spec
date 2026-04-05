@@ -13,7 +13,7 @@ a [github/spec-kit](https://github.com/github/spec-kit) módszertana alapján.
 
 | Verzió | Ratified | Állapot |
 |--------|----------|---------|
-| v1.4.0 | 2026-04-02 | ✅ Elfogadva |
+| v1.5.0 | 2026-04-02 | ✅ Elfogadva |
 
 ### Project Status
 
