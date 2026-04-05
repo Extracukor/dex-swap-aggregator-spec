@@ -1,6 +1,6 @@
 # DEX Swap Aggregator Constitution
 
-**Version**: 1.2.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-02
+**Version**: 1.3.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-05
 
 ## Business Goal
 
@@ -63,10 +63,33 @@ Every swap that fails, slips, or routes incorrectly is lost revenue and lost use
 - Revenue dashboard (daily/monthly fee income by chain) MUST be operational from day one of mainnet.
 - All off-chain services MUST expose a `/health` endpoint and structured logs.
 
+### VI. Swap Execution Boundaries & Fee Integrity (NON-NEGOTIABLE)
+
+The backend and frontend have strictly separated responsibilities to eliminate
+custodial risk and enforce deterministic fee capture.
+
+- **Separation of Concerns for Swaps**: The Node.js backend is STRICTLY a read-only
+  calculation engine. It fetches quotes and formats calldata. It MUST NEVER hold,
+  request, or process user private keys.
+- The React frontend is SOLELY responsible for prompting the user to sign and
+  broadcast transactions.
+- **Protocol Fee Enforcement**: The 0.05% fee MUST be deducted atomically during
+  execution.
+- Fee capture MUST be handled either by using the external aggregator's built-in
+  fee parameters (for example, 1inch `feeRecipient`) or via a minimal, immutable
+  Solidity Proxy contract.
+- No secondary fee transactions are allowed.
+
 ## Constraints & Standards
 
 - **EVM chains**: Solidity ^0.8.24, Foundry for contract development and testing.
-- **Backend / Routing Engine**: Python 3.12+, FastAPI; blockchain interaction via web3.py 7+.
+- **Backend / Routing Engine**: Node.js v20+ LTS with TypeScript, using a lightweight
+  framework (Express or Fastify).
+- **Blockchain interaction library**: use `viem` (preferred, aligned with frontend)
+  or `ethers` v6.
+- **External API Integration**: The backend MUST interact with DEX Aggregators
+  (for example, 1inch, 0x) using raw HTTP/REST calls (native `fetch` or `axios`).
+  Do NOT use or hallucinate unmaintained third-party SDKs.
 - **Frontend**: React 19 + Vite; wallet connection via wagmi v2 + viem v2 (JS/TS — browser wallet integration requires JavaScript).
 - **No GPL dependencies** — all dependencies must be MIT, Apache 2.0, or BSL compatible.
 - **No custodial patterns**: the aggregator contract MUST NOT hold user funds between transactions.
@@ -95,6 +118,14 @@ Every swap that fails, slips, or routes incorrectly is lost revenue and lost use
 - **No speculative features**: only build what is in a completed, accepted spec.
 
 ## Governance
+
+Amendment summary (2026-04-05):
+
+1. Backend/routing standard migrated to Node.js v20+ LTS + TypeScript.
+2. Blockchain interaction standardized to `viem` (preferred) or `ethers` v6.
+3. Added strict external DEX aggregator integration rule (raw HTTP/REST only).
+4. Added strict swap responsibility separation (backend read-only, frontend signing).
+5. Added strict atomic protocol-fee enforcement rule (no secondary fee tx).
 
 This constitution supersedes all other development guidelines.  
 Amendments require:

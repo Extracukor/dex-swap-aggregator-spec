@@ -138,14 +138,26 @@ side by side.
 
 ---
 
+## Technical Architecture & Security Constraints
+
+- Backend service MUST be implemented as a Node.js (v20+ LTS) + TypeScript service.
+- The system operates on a non-custodial model for user funds during swaps.
+- Private keys are generated per user and MUST be encrypted using AES-256-GCM before
+  any database storage.
+- Decryption keys MUST be managed strictly through environment variables.
+- Private keys and decrypted key material MUST NOT be logged under any circumstance.
+
+---
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
 - **FR-001**: System MUST accept a token pair (tokenIn address, tokenOut address) and a
   numeric input amount as the minimum required inputs for a quote.
-- **FR-002**: System MUST query at least 2 DEX liquidity sources on Base simultaneously
-  per quote request. (v1 sources: Uniswap v3 on Base, Aerodrome.)
+- **FR-002**: Quote fetching MUST utilize off-chain DEX Aggregator API endpoints
+  (e.g., 1inch API or 0x API) to source and compare routes on Base. The system MUST NOT
+  query AMM smart contracts directly on-chain for quote discovery.
 - **FR-003**: System MUST return the quote with the highest net output amount as the
   "best route" recommendation.
 - **FR-004**: Every quote response MUST include: best output amount, price impact %,
@@ -154,8 +166,13 @@ side by side.
   on Base — no user funds may be held between transactions.
 - **FR-006**: The smart contract MUST enforce a minimum output amount on every swap
   (on-chain slippage protection); if the actual output would be lower, the tx MUST revert.
-- **FR-007**: The smart contract MUST deduct a protocol fee (configurable, ≤0.1% of
-  output) and transfer it to the protocol treasury address on every successful swap.
+- **FR-007**: Fee collection MUST be enforced by a custom, minimalist Solidity
+  Proxy/Router contract. Execution MUST occur in a single atomic transaction where:
+  (1) the user transaction is sent to the Proxy/Router, (2) the Proxy/Router executes
+  the swap using external Aggregator API-provided calldata, (3) the Proxy/Router
+  automatically deducts a 0.05% protocol fee from the OUTPUT token amount, (4) sends
+  the fee to the treasury address, and (5) forwards the remaining 99.95% OUTPUT tokens
+  to the user's wallet. No secondary fee transaction is permitted.
 - **FR-008**: Every successful swap MUST emit an on-chain event containing: tokenIn,
   tokenOut, amountIn, amountOut, feeCollected, routeUsed, userAddress.
 - **FR-009**: System MUST handle native ETH input transparently (wrap to WETH as needed
@@ -198,8 +215,8 @@ side by side.
 - The default slippage tolerance is 0.5%; users may adjust it between 0.1% and 5%.
 - Native ETH is treated as the user-facing asset; WETH wrapping/unwrapping is handled
   transparently by the system.
-- v1 DEX sources are Uniswap v3 (Base deployment) and Aerodrome — the two largest by
-  TVL on Base as of launch. Additional sources are added in a future feature spec.
+- v1 quote providers are off-chain DEX Aggregator APIs (1inch and/or 0x) for Base;
+  the backend does not perform direct AMM smart-contract quote discovery on-chain.
 - The protocol fee rate for v1 is fixed at **0.05%** of output amount, collected in the
   output token. The fee rate is stored on-chain and updatable only by the protocol owner
   (hardware wallet / multisig).

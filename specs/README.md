@@ -18,7 +18,7 @@ specs/
 
 ---
 
-## Feature állapot — 2026-04-03
+## Feature állapot — 2026-04-05
 
 ### 001 — Core Swap Aggregation
 
@@ -27,8 +27,8 @@ specs/
 | Artifact | Állapot | Tartalom |
 |----------|---------|----------|
 | `spec.md` | ✅ Kész | 3 user story (US1–US3), FR-001–FR-010, SC-001–SC-006 |
-| `research.md` | ✅ Kész | 7 döntés: aggregator pattern, Uniswap v3, Aerodrome, FastAPI, hosting |
-| `data-model.md` | ✅ Kész | Pydantic v2 modellek (SwapQuote, SwapRoute, stb.), Solidity events |
+| `research.md` | ✅ Kész | 7 döntés: aggregator pattern, DEX source strategy, hosting és delivery irányok |
+| `data-model.md` | ✅ Kész | Swap domain entitások (SwapQuote, SwapRoute, stb.) és Solidity eventek |
 | `contracts/routing-api.md` | ✅ Kész | REST API contract (GET /v1/quote, /tokens, /health) + Solidity ABI |
 | `quickstart.md` | ✅ Kész | 6 testnet validációs scenario (Definition of Done gate) |
 | `plan.md` | ✅ Kész | Constitution Check passed (mind az 5 elv ✅), projekt struktúra |
@@ -46,7 +46,33 @@ repót és kezdd a Phase 1 (Setup) taskok végrehajtásával.
 
 | Artifact | Állapot | Tartalom |
 |----------|---------|----------|
-| `spec.md` | ✅ Kész | 3 user story: napi stats, DeFiLlama listing, Dune dashboard |
+| `spec.md` | ✅ Kész | 4 user story: daily stats, listing, build-in-public automation, scope boundaries |
 | `plan.md` | ❌ Hiányzik | Létrehozás: `/speckit.plan` — 001 implementáció után |
 | `tasks.md` | ❌ Hiányzik | Plan után: `/speckit.tasks` |
 | Implementáció | ❌ | 001 után |
+
+---
+
+### 004 — Infrastructure and Environments
+
+**Branch**: `004-infrastructure-and-environments` | **Prioritás**: Platform Foundation
+
+| Artifact | Állapot | Tartalom |
+|----------|---------|----------|
+| `spec.md` | ✅ Kész | 3 user story, FR-001-FR-012, SC-001-SC-005; Railway/Cloudflare deploy + secrets |
+| `plan.md` | ❌ Hiányzik | Létrehozás: `/speckit.plan` |
+| `tasks.md` | ❌ Hiányzik | Plan után: `/speckit.tasks` |
+| Implementáció | ❌ | Infrastrukturális munkák a specifikáció alapján |
+
+---
+
+### 005 — Frontend dApp
+
+**Branch**: `005-frontend-dapp` | **Prioritás**: MVP Interface
+
+| Artifact | Állapot | Tartalom |
+|----------|---------|----------|
+| `spec.md` | ✅ Kész | React 19 + Vite + Tailwind + shadcn/ui, wagmi v2 + viem v2 + RainbowKit, thin-client flow |
+| `plan.md` | ❌ Hiányzik | Létrehozás: `/speckit.plan` |
+| `tasks.md` | ❌ Hiányzik | Plan után: `/speckit.tasks` |
+| Implementáció | ❌ | UI és wallet flow megvalósítás a Routing API-ra támaszkodva |

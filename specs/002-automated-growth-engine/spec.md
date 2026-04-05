@@ -92,6 +92,38 @@ matching on-chain records for at least the last 7 days.
 
 ---
 
+### User Story 4 — Pre-Launch Build in Public Automation (Priority: P1)
+
+Before mainnet launch, the team wants development momentum to be visible publicly
+without manual social media work. When code progress is merged to main, the system
+automatically publishes a short developer-focused update to Twitter/X to build hype.
+
+**Why this priority**: Pre-launch visibility compounds over time. Consistent progress
+posts can increase early followers, waitlist quality, and launch-day conversion with
+near-zero operational overhead.
+
+**Independent Test**: Merge a PR into main and verify that, within the workflow run,
+an automated post is generated from PR/commit context and published to Twitter/X.
+
+**Acceptance Scenarios**:
+
+1. **Given** a PR is merged into `main`,
+   **When** the GitHub Action workflow runs,
+   **Then** it generates a concise developer-focused update from the merged PR
+   description and commit messages and publishes it to Twitter/X automatically.
+
+2. **Given** a major milestone flag is triggered,
+   **When** the workflow runs,
+   **Then** it generates and publishes a milestone update to Twitter/X without
+   requiring any manual content drafting.
+
+3. **Given** the LLM API or Twitter/X API returns an error,
+   **When** autopublish fails,
+   **Then** the workflow records a structured failure log and marks the run as failed
+   without impacting routing or daily stats publication.
+
+---
+
 ### Edge Cases
 
 - What if the on-chain RPC is unavailable at stats collection time? → Retry up to
@@ -106,6 +138,20 @@ matching on-chain records for at least the last 7 days.
 
 ---
 
+## System Scope & Boundaries
+
+- Building and maintaining the Dune Analytics dashboard (SQL queries, dashboard layout,
+  chart configuration) is strictly OUT OF SCOPE for the core backend application's codebase.
+- Writing and maintaining the DeFiLlama adapter (including PR creation and updates in
+  an external repository) is strictly OUT OF SCOPE for the core backend application's
+  codebase.
+- The backend's sole growth responsibility is strictly limited to the following:
+- Emit clean, indexable on-chain events.
+- Run automated Twitter/X publication jobs (daily stats and pre-launch build in public updates).
+- Optionally expose a read-only `/v1/stats` REST API endpoint for external trackers.
+
+---
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -113,8 +159,12 @@ matching on-chain records for at least the last 7 days.
 - **FR-001**: The system MUST automatically publish daily swap statistics (swap count,
   total volume in USD, total fee income in USD) to at least one public channel without
   any manual trigger.
-- **FR-002**: All published statistics MUST be derived exclusively from verified
-  on-chain swap events — no estimation, approximation, or off-chain data sources.
+- **FR-002**: The on-chain `SwapExecuted` event MUST be treated as the canonical source
+  of swap token amounts and MUST emit token amounts only (`amountIn`, `amountOut`).
+  The backend MUST run an off-chain Indexer or Cron job that listens to these events,
+  fetches historical token/USD prices from an external price API (e.g., CoinGecko)
+  at the exact swap timestamp, computes USD volume off-chain, and stores the computed
+  USD values in the database before publication.
 - **FR-003**: Published figures MUST be accurate to the precision displayed; no
   rounding that would misrepresent the true on-chain value by more than 0.1%.
 - **FR-004**: The publication system MUST NOT publish when zero swaps occurred in
@@ -131,12 +181,24 @@ matching on-chain records for at least the last 7 days.
   public dashboard) so any reader can independently confirm the figures.
 - **FR-010**: The system MUST emit a structured alert when a publication window is
   skipped due to repeated failures.
+- **FR-011**: The system MUST include a GitHub Actions workflow for pre-launch
+  Build in Public automation that triggers when (a) a PR is merged into `main` or
+  (b) a major milestone signal is emitted. The workflow MUST use a lightweight LLM
+  API to generate a short, developer-focused social update from merged PR description
+  and commit messages, then automatically publish it to Twitter/X with no manual
+  social media management step.
 
 ### Key Entities
 
+- **SwapExecutedEvent**: Canonical on-chain event payload used by the growth engine —
+  token amounts only (`amountIn`, `amountOut`) plus identifiers needed for indexing
+  (txHash, blockNumber, timestamp, tokenIn, tokenOut, userAddress, routeUsed).
+- **EnrichedSwapRecord**: Off-chain indexed swap record derived from `SwapExecutedEvent`
+  and historical price enrichment — includes `amountInUSD`, `amountOutUSD`,
+  `priceSource`, and `pricingTimestamp`.
 - **DailyStats**: Aggregated record for a 24-hour UTC window — swap count, volume (USD),
-  fee income (USD), top token pairs, DEX route distribution. Derived from `SwapExecuted`
-  events.
+  fee income (USD), top token pairs, DEX route distribution. Built from stored
+  `EnrichedSwapRecord` rows (not from estimated values).
 - **PublicationRecord**: Log entry for each publication attempt — window date, channel,
   success/failure, retry count, published content hash.
 - **ChannelConfig**: Configuration for each publication channel — type (social post,
@@ -174,7 +236,8 @@ matching on-chain records for at least the last 7 days.
 - The publication system runs on the same Railway infrastructure as the routing engine —
   no additional hosting cost.
 - Published stats are read-only aggregates; no user PII is collected or published.
-- USD conversion for volume figures uses the same Chainlink ETH/USD price feed
-  already used by the routing engine (no new price oracle dependency).
+- USD conversion for published volume figures is performed off-chain by the Indexer/Cron
+  pipeline using historical token/USD prices at swap-time from an external price API
+  (e.g., CoinGecko), then stored in the database for publication.
 - The analytics dashboard (Dune) is a one-time query setup; Dune refreshes the
   underlying data automatically from on-chain events.
