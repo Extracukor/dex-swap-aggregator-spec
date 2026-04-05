@@ -31,12 +31,32 @@ specs/
 | `data-model.md` | ✅ Kész | Swap domain entitások (SwapQuote, SwapRoute, stb.) és Solidity eventek |
 | `contracts/routing-api.md` | ✅ Kész | REST API contract (GET /v1/quote, /tokens, /health) + Solidity ABI |
 | `quickstart.md` | ✅ Kész | 6 testnet validációs scenario (Definition of Done gate) |
-| `plan.md` | ✅ Kész | Constitution Check passed (mind az 5 elv ✅), projekt struktúra |
+| `plan.md` | ✅ Kész | Constitution Check passed (mind a 6 elv ✅), projekt struktúra |
 | `tasks.md` | ✅ Kész | 68 task, 6 fázis — Phase 1 (Setup) → Phase 6 (Polish) |
 | Implementáció | ⏳ Nem kezdődött | Implementációs repo: github.com/Extracukor/dex-swap-aggregator |
 
 **Következő lépés**: Nyisd meg a [dex-swap-aggregator](https://github.com/Extracukor/dex-swap-aggregator)
 repót és kezdd a Phase 1 (Setup) taskok végrehajtásával.
+
+---
+
+### 003 — Frontend PoC Deployment
+
+**Branch**: `003-frontend-poc-deployment` | **Prioritás**: Frontend enablement
+
+| Artifact | Állapot | Tartalom |
+|----------|---------|----------|
+| `spec.md` | ✅ Kész | 3 user story (US1–US3), FR-001–FR-010, SC-001–SC-006 |
+| `research.md` | ✅ Kész | Stack döntések: Vite TS, wagmi v2+viem v2, Tailwind+shadcn, Cloudflare Pages |
+| `data-model.md` | ✅ Kész | PoC típusok: QuoteRequest, QuoteResult, QuoteState, TokenOption |
+| `contracts/mock-service-contract.md` | ✅ Kész | MockQuoteService input/output és viselkedési szerződés |
+| `quickstart.md` | ✅ Kész | Setup + 6 validációs szcenárió (wallet, mock quote, guardok, deploy) |
+| `plan.md` | ✅ Kész | FR-001–FR-010 megfelelési mátrix + rigourous Constitution Check |
+| `tasks.md` | ❌ Hiányzik | Létrehozás: `/speckit.tasks` |
+| Implementáció | ❌ | PoC app scaffold és deploy a terv alapján |
+
+**Következő lépés**: Futtasd a `/speckit.tasks` promptot a 003 feature-höz,
+majd kezdődhet a PoC implementáció.
 
 ---
 

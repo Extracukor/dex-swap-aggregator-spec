@@ -21,17 +21,19 @@ a [github/spec-kit](https://github.com/github/spec-kit) módszertana alapján.
 |---|--------|------|------|-------|---------------|
 | 001 | `001-core-swap-aggregation` | ✅ | ✅ | ✅ | ⏳ Nem kezdődött |
 | 002 | `002-automated-growth-engine` | ✅ | ❌ | ❌ | ❌ |
+| 003 | `003-frontend-poc-deployment` | ✅ | ✅ | ❌ | ❌ |
 | 004 | `004-infrastructure-and-environments` | ✅ | ❌ | ❌ | ❌ |
 | 005 | `005-frontend-dapp` | ✅ | ❌ | ❌ | ❌ |
 
 ### Mit kell még csinálni (sorrendben)
 
-1. `002-automated-growth-engine` → `/speckit.plan` → `/speckit.tasks`
-2. `004-infrastructure-and-environments` → `/speckit.plan` → `/speckit.tasks`
-3. `005-frontend-dapp` → `/speckit.plan` → `/speckit.tasks`
-4. Implementáció: `001` Phase 1–4 (setup → contracts → engine → frontend)
-5. Base Sepolia testnet validáció (quickstart.md 6 scenario)
-6. Független kód review → mainnet deploy
+1. `003-frontend-poc-deployment` → `/speckit.tasks`
+2. `002-automated-growth-engine` → `/speckit.plan` → `/speckit.tasks`
+3. `004-infrastructure-and-environments` → `/speckit.plan` → `/speckit.tasks`
+4. `005-frontend-dapp` → `/speckit.plan` → `/speckit.tasks`
+5. Implementáció: `001` Phase 1–4 (setup → contracts → engine → frontend)
+6. Base Sepolia testnet validáció (quickstart.md 6 scenario)
+7. Független kód review → mainnet deploy
 
 ---
 
