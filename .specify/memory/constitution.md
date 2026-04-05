@@ -1,6 +1,6 @@
 # DEX Swap Aggregator Constitution
 
-**Version**: 1.4.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-05
+**Version**: 1.5.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-05
 
 ## Business Goal
 
@@ -81,6 +81,7 @@ custodial risk and enforce deterministic fee capture.
   fee parameters (for example, 1inch `feeRecipient`) or via a minimal, immutable
   Solidity Proxy contract.
 - No secondary fee transactions are allowed.
+- **Exact Amount Approvals Only (NON-NEGOTIABLE)**: The frontend and any external clients MUST only request token approvals for the exact input amount required for the swap. Infinite approvals (e.g., `type(uint256).max`) are STRICTLY FORBIDDEN to protect users from potential wallet drain risks.
 
 ## Constraints & Standards
 
@@ -129,6 +130,7 @@ Amendment summary (2026-04-05):
 4. Added strict swap responsibility separation (backend read-only, frontend signing).
 5. Added strict atomic protocol-fee enforcement rule (no secondary fee tx).
 6. Added a targeted Hungarian community growth strategy with temporary referral-based 0.00% fee override support.
+7. Added NON-NEGOTIABLE Exact Amount Approvals rule: frontend MUST request only exact input amounts for token approvals; infinite approvals strictly forbidden for user wallet drain protection.
 
 This constitution supersedes all other development guidelines.  
 Amendments require:
