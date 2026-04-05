@@ -52,11 +52,11 @@ repót és kezdd a Phase 1 (Setup) taskok végrehajtásával.
 | `contracts/mock-service-contract.md` | ✅ Kész | MockQuoteService input/output és viselkedési szerződés |
 | `quickstart.md` | ✅ Kész | Setup + 6 validációs szcenárió (wallet, mock quote, guardok, deploy) |
 | `plan.md` | ✅ Kész | FR-001–FR-010 megfelelési mátrix + rigourous Constitution Check |
-| `tasks.md` | ❌ Hiányzik | Létrehozás: `/speckit.tasks` |
+| `tasks.md` | ✅ Kész | Atomikus implementációs checklist (T001-T067), setup + UI + mock + Cloudflare bontás |
 | Implementáció | ❌ | PoC app scaffold és deploy a terv alapján |
 
-**Következő lépés**: Futtasd a `/speckit.tasks` promptot a 003 feature-höz,
-majd kezdődhet a PoC implementáció.
+**Következő lépés**: Indítsd a 003 PoC implementációt a `tasks.md` alapján,
+majd validáld a `quickstart.md` teljes szcenáriókészletével.
 
 ---
 
