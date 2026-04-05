@@ -13,7 +13,11 @@ a [github/spec-kit](https://github.com/github/spec-kit) módszertana alapján.
 
 | Verzió | Ratified | Állapot |
 |--------|----------|---------|
-| v1.3.0 | 2026-04-02 | ✅ Elfogadva |
+| v1.4.0 | 2026-04-02 | ✅ Elfogadva |
+
+### Project Status
+
+- Phase 1: Frontend PoC in progress.
 
 ### Feature-ök
 
@@ -34,6 +38,20 @@ a [github/spec-kit](https://github.com/github/spec-kit) módszertana alapján.
 5. Implementáció: `001` Phase 1–4 (setup → contracts → engine → frontend)
 6. Base Sepolia testnet validáció (quickstart.md 6 scenario)
 7. Független kód review → mainnet deploy
+
+## Growth Strategy
+
+Initial focus on the Hungarian DeFi community by offering 0% protocol fees for users using the
+`HUNGARY` referral code. This serves as our primary "Tracer Bullet" for volume and user feedback.
+
+Ez célzott, ideiglenes promóciós mechanizmus: az alapértelmezett fee továbbra is 0.05%, a 0.00%
+csak érvényes referral paraméter mellett használható a kezdeti community bootstrap fázisban.
+
+## Tech Stack
+
+- Frontend: React 19 + Vite + TypeScript
+- Wallet integration: wagmi v2 + viem v2
+- Backend / routing foundation: Node.js v20+ LTS
 
 ---
 

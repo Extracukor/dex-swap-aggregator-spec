@@ -1,6 +1,6 @@
 # DEX Swap Aggregator Constitution
 
-**Version**: 1.3.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-05
+**Version**: 1.4.0 | **Ratified**: 2026-04-02 | **Last Amended**: 2026-04-05
 
 ## Business Goal
 
@@ -30,6 +30,7 @@ or operational cost reduction. Features without business justification MUST NOT 
 - Start with the simplest working implementation; add complexity only when usage data proves the need.
 - Prefer existing audited protocols and libraries over custom implementations.
 - A feature is worth building only if it demonstrably increases swap volume or reduces churn.
+- Growth Hack: Support dynamic protocol fees. Specifically, implement a 0.00% fee tier for users arriving via the `?ref=HUNGARY` referral link to bootstrap the Hungarian community.
 
 ### III. L2-First, EVM-Compatible Expansion
 
@@ -73,8 +74,9 @@ custodial risk and enforce deterministic fee capture.
   request, or process user private keys.
 - The React frontend is SOLELY responsible for prompting the user to sign and
   broadcast transactions.
-- **Protocol Fee Enforcement**: The 0.05% fee MUST be deducted atomically during
-  execution.
+- **Protocol Fee Enforcement**: The 0.05% fee is the default and MUST be deducted atomically during
+  execution. However, the backend MUST support an override to 0.00% based on valid referral
+  parameters passed from the frontend.
 - Fee capture MUST be handled either by using the external aggregator's built-in
   fee parameters (for example, 1inch `feeRecipient`) or via a minimal, immutable
   Solidity Proxy contract.
@@ -126,6 +128,7 @@ Amendment summary (2026-04-05):
 3. Added strict external DEX aggregator integration rule (raw HTTP/REST only).
 4. Added strict swap responsibility separation (backend read-only, frontend signing).
 5. Added strict atomic protocol-fee enforcement rule (no secondary fee tx).
+6. Added a targeted Hungarian community growth strategy with temporary referral-based 0.00% fee override support.
 
 This constitution supersedes all other development guidelines.  
 Amendments require:
